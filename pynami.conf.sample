@@ -1,0 +1,22 @@
+# this is a toml formatted config file for pynami
+# this file should be stored in ./pynami.conf
+# this is needed for the tool to work!!!
+
+[nami]
+username = "123456"                         # This is your Mitgliedsnummer
+password = "YOURPASSWORD"                   # Your NAMI password
+stammesnummer = "131913"                    # Your DPSG Stammesnummer without slashes
+
+[creditor]
+name = "Stamm XYZ"                          # This is the owner of the creditor account
+iban = ""                                   # The IBAN of the creditor account
+bic = ""                                    # The BIC of the creditor bank
+creditor_id = ""                            # supplied by your bank or financial authority
+description_text = "Mitgliedschaft DPSG "   # Description of the debit, after this text the name of the member will be added
+
+[payment_info]
+collection_date = "2023 12 31"              # collection date in format YYYY MM DD
+fee_normal = 20.00 # EUR                    # DPSG's Voller Beitrag
+fee_family = 20.00 # EUR                    # DPSG'S Familienermäßigt
+fee_social = 20.00 # EUR                    # DPSG's Sozialermäßigt
+fee_leader = 20.00 # EUR                    # Special fee for troop leaders

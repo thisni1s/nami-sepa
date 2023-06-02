@@ -1,0 +1,5 @@
+marshmallow==3.19.0
+pytoml==0.1.21
+Requests==2.31.0
+schwifty==2022.9.0
+sepaxml==2.6.1
