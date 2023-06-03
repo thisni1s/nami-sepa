@@ -15,6 +15,8 @@ UG_STAVO = 5
 
 # taetigkeitId
 TG_LEITER = 6
+TG_MITGLIED = 1
+TG_PASSIV = 39
 TG_KURAT = 1011
 
 

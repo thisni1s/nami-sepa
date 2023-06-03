@@ -20,3 +20,4 @@ fee_normal = 20.00 # EUR                    # DPSG's Voller Beitrag
 fee_family = 20.00 # EUR                    # DPSG'S Familienermäßigt
 fee_social = 20.00 # EUR                    # DPSG's Sozialermäßigt
 fee_leader = 20.00 # EUR                    # Special fee for troop leaders
+fee_passive = 20.00 # EUR                   # Special fee for passive members
