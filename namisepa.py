@@ -1,4 +1,4 @@
-import os, time, datetime
+import sys, os, time, datetime
 import pytoml as toml
 from nami import Nami, TG_LEITER, TG_MITGLIED, TG_PASSIV
 from schemas import SepaMember, SepaMandate
@@ -27,6 +27,22 @@ payment_config = {
     "currency": "EUR",  # ISO 4217
 }
 sepa = SepaDD(payment_config, schema="pain.008.001.02", clean=True)
+
+def normalize_string(input):
+        replace_dict = {
+            'Á':'A', 'À':'A', 'Â':'A', 'Ã':'A', 'Å':'A', 'Ä':'Ae', 'Æ':'AE', 'Ç':'C', 'É':'E', 'È':'E', 'Ê':'E', 'Ë':'E',
+            'Í':'I', 'Ì':'I', 'Î':'I', 'Ï':'I', 'Ð':'Eth', 'Ñ':'N', 'Ó':'O', 'Ò':'O', 'Ô':'O', 'Õ':'O', 'Ö':'O', 'Ø':'O', 
+            'Ú':'U', 'Ù':'U', 'Û':'U', 'Ü':'Ue', 'Ý':'Y', 'á':'a', 'à':'a', 'â':'a', 'ã':'a', 'å':'a', 'ä':'ae', 'æ':'ae',
+            'ç':'c', 'é':'e', 'è':'e', 'ê':'e', 'ë':'e', 'í':'i', 'ì':'i', 'î':'i', 'ï':'i', 'ð':'eth', 'ñ':'n', 'ó':'o',
+            'ò':'o', 'ô':'o', 'õ':'o', 'ö':'oe', 'ø':'o', 'ú':'u', 'ù':'u', 'û':'u', 'ü':'ue', 'ý':'y', 'ß':'ss', 'þ':'thorn',
+            'ÿ':'y', '&':'u.', '@':'at', '#':'h', '$':'s', '%':'perc', '^':'-','*':'-'
+        }
+
+        for x in input:
+            if x in replace_dict:
+                input = input.replace(x, replace_dict[x])
+
+        return input
 
 def get_sepa_members(taetigkeit: int):
     """
@@ -76,30 +92,36 @@ def get_payment_amount(feeType: str, taetigkeit: int) -> int:
         return int(payment_info['fee_social'] * 100)
     else:
         return int(payment_info['fee_normal'] * 100)
-
+    
 def add_to_sepa(members: list, collDate: datetime.date, taetigkeit: int):
     for entry in members:
-        if entry.sepaMandate.date != "" and entry.sepaMandate.iban != "":
+        try:
+            iban = IBAN(entry.sepaMandate.iban)
+            bic = iban.bic.formatted.replace(' ', '')
             date_str = entry.sepaMandate.date
             date = datetime.date(int(date_str[4:]), int(date_str[2:4]), int(date_str[:2]))
-            bic = entry.sepaMandate.bic or IBAN(entry.sepaMandate.iban).bic.formatted.replace(' ', '') # calculate missing bics
+            owner = normalize_string(entry.sepaMandate.owner)
+            fname = normalize_string(entry.firstName)
+            lname = normalize_string(entry.lastName)
 
-
-            payment = {
-                "name": entry.sepaMandate.owner,
-                "IBAN": entry.sepaMandate.iban,
-                "BIC": bic,
-                "amount": get_payment_amount(entry.feeType, taetigkeit),  # in cents
-                "type": "RCUR",  # FRST,RCUR,OOFF,FNAL
-                "collection_date": collDate,
-                "mandate_id": f"{entry.memberId}-{entry.firstName}-{entry.lastName}",
-                "mandate_date": date,
-                "description": f"{creditor['description_text']} {entry.firstName} {entry.lastName}"
-            }
-            if check_payment(payment):
-                sepa.add_payment(payment)
-        else:
-            print(f"Warning, no valid SEPA Mandate for: {entry.firstName} {entry.lastName} ")
+            if owner != "":
+                payment = {
+                    "name": owner,
+                    "IBAN": iban.formatted.replace(' ', ''),
+                    "BIC": bic,
+                    "amount": get_payment_amount(entry.feeType, taetigkeit),  # in cents
+                    "type": "RCUR",  # FRST,RCUR,OOFF,FNAL
+                    "collection_date": collDate,
+                    "mandate_id": f"{entry.memberId}-{fname}-{lname}",
+                    "mandate_date": date,
+                    "description": f"{creditor['description_text']} {fname} {lname}"
+                }
+                if check_payment(payment):
+                    sepa.add_payment(payment)
+            else:
+                print(f"Warning, no valid SEPA Mandate for: {entry.firstName} {entry.lastName} ")
+        except:
+            print(f"Error with SEPA Mandate of {entry.firstName}-{entry.lastName}")
 
 
 
@@ -112,5 +134,5 @@ add_to_sepa(get_sepa_members(TG_LEITER), collection_date, TG_LEITER)
 add_to_sepa(get_sepa_members(TG_PASSIV), collection_date, TG_PASSIV)
 
 print("Writing file...")
-with open("out.xml", "wb") as f:
+with open(sys.argv[1], "wb") as f:
     f.write(sepa.export(validate=True)) 
