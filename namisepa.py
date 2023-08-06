@@ -84,13 +84,14 @@ def get_payment_amount(feeType: str, taetigkeit: int) -> int:
         return int(payment_info['fee_leader'] * 100)
     elif(taetigkeit == TG_PASSIV):
         return int(payment_info['fee_passive'] * 100)
-    elif(feeType == "Voller Beitrag"):
+    elif(feeType == "Voller Beitrag" or feeType == "Voller Beitrag - Stiftungseuro"):
         return int(payment_info['fee_normal'] * 100)
-    elif(feeType == "Familienermäßigt"):
+    elif(feeType == "Familienermäßigt" or feeType == "Familienermäßigt - Stiftungseuro"):
         return int(payment_info['fee_family'] * 100)
-    elif(feeType == "Sozialermäßigt"):
+    elif(feeType == "Sozialermäßigt" or feeType == "Sozialermäßigt - Stiftungseuro"):
         return int(payment_info['fee_social'] * 100)
     else:
+        print(f"ft: {feeType} taet: {taetigkeit}")
         return int(payment_info['fee_normal'] * 100)
     
 def add_to_sepa(members: list, collDate: datetime.date, taetigkeit: int):
