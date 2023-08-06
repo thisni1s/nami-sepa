@@ -10,9 +10,7 @@ copy the sample config ``` cp pynami.conf.sample pynami.conf ```
 
 edit the config with the correct values
 
-run programm ``` python3 namisepa.py name-of-output-file.xml```
-
-sepa xml file will be in ``` out.xml ```
+run programm ```python3 namisepa.py name-of-output-file.xml```
 
 ## NaMi
 
