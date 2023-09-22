@@ -3,6 +3,7 @@ pynami.conf
 pynami/pynami.config
 *.xml
 *.json
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
